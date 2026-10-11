@@ -138,8 +138,13 @@ def test_gradient_accumulation_matches_one_big_batch(corpus, tmp_path):
     ra, rb = a.train_step(micro), b.train_step(big)
     assert ra["loss"] == pytest.approx(rb["loss"], rel=1e-5)
     assert ra["grad_norm"] == pytest.approx(rb["grad_norm"], rel=1e-4)
+    # Adam rescales every update to ~lr, so float summation-order differences between CPUs can flip
+    # near-zero-gradient entries. Require the same update on average, not bit-for-bit.
+    wb = weights(b)
     for k, v in weights(a).items():
-        assert torch.allclose(v, weights(b)[k], atol=1e-6), k
+        diff = (v - wb[k]).abs()
+        assert diff.mean() < 1e-5, k
+        assert diff.max() < 1e-2, k
 
 
 def test_grad_clipping_bounds_the_applied_norm(corpus, tmp_path):

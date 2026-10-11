@@ -1,5 +1,7 @@
 # Runbook: Pretraining Tenslam MiniLM on 100M Tokens (RunPod)
 
+> **Superseded for the pod procedure:** use [RUNBOOK_SINGLE_SESSION.md](RUNBOOK_SINGLE_SESSION.md). Phases 4-7 (after training) here still apply.
+
 This is the exact, ordered procedure for the real training run (Session 4), including what to do afterwards.
 Nothing here has been run yet. **Every time and cost below is an estimate extrapolated from the measured
 benchmark (153k tokens/s on an RTX A5000, bf16), not a measured result of a full run.**
