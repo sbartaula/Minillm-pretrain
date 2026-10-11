@@ -18,7 +18,8 @@ python -m pytest -q          # expect all pass, CUDA test runs
 ```bash
 cd /workspace && cat bundle.part_* > tenslam-runpod-bundle.zip
 sha256sum tenslam-runpod-bundle.zip   # must be eeada3a2978395d9b81ffa7251305517f9dc318cdbd70f5beef6afe898c6fff2
-unzip -q tenslam-runpod-bundle.zip -d /tmp/b && cp -r /tmp/b/data /workspace/tenslam-minilm/ 2>/dev/null || ls /tmp/b
+unzip -q tenslam-runpod-bundle.zip -d /tmp/b          # bundle holds OLD code too; copy only data + tokenizer
+cp -r /tmp/b/data /tmp/b/artifacts /workspace/tenslam-minilm/
 cd /workspace/tenslam-minilm
 nohup tenslam train --config configs/train_runpod.toml --resume auto > train_stage1.log 2>&1 &
 tail -f train_stage1.log
