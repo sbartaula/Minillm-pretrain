@@ -237,6 +237,10 @@ def main(argv: list[str] | None = None) -> int:
     p.add_argument("--train-docs", type=int)
     p.add_argument("--validation-docs", type=int)
     p.add_argument("--force", action="store_true", help="re-stream even if raw files exist")
+    p = sub.add_parser("prepare-mix", help="Stage 2: multi-source corpus + tokenizer + token files")
+    p.add_argument("--config", default="configs/data_mix.toml")
+    p.add_argument("--limit-docs", type=int, dest="limit_docs", help="max parent docs per source (dry run)")
+    p.add_argument("--force", action="store_true")
     p = sub.add_parser("train", help="pretrain (CPU or CUDA)")
     p.add_argument("--config", default="configs/train_cpu_smoke.toml")
     p.add_argument("--resume", help="checkpoint path, or 'auto' to continue <out_dir>/last.pt")
@@ -275,6 +279,16 @@ def main(argv: list[str] | None = None) -> int:
          "export": cmd_export, "generate": cmd_generate}[args.command](args)
         return 0
     cfg = load_config(args.config)
+    if args.command == "prepare-mix":
+        from .mix import prepare_mix
+        m = prepare_mix(cfg, args.limit_docs, args.force)
+        print(f"train {m['train']['n_tokens']:,} tokens | validation {m['validation']['n_tokens']:,}")
+        for s_ in m["sources"]:
+            print(f"  {s_['name']:22s} train {s_['train_tokens']:>12,} ({s_['train_share']:.1%}) "
+                  f"val {s_['validation_tokens']:>9,}")
+        print(f"manifest -> {cfg['mix']['manifest']}")
+        sys.stdout.flush()
+        os._exit(0)
     if args.command == "prepare":
         cmd_prepare(cfg, args)
         # HF streaming threads can crash the interpreter during teardown; our files are

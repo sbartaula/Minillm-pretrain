@@ -190,6 +190,13 @@ class Trainer:
         self.data_info = self._verify_data()
         self.train_tokens = open_tokens(cfg.train_bin)
         self.val_tokens = open_tokens(cfg.val_bin)
+        self.source_val: dict[str, np.ndarray] = {}
+        if Path(cfg.manifest).exists():
+            with open(cfg.manifest, encoding="utf-8") as f:
+                for src in json.load(f).get("sources", []):
+                    vb = Path(src.get("validation_bin", ""))
+                    if src.get("validation_tokens", 0) > cfg.seq_len + 1 and vb.exists():
+                        self.source_val[src["name"]] = open_tokens(vb)
 
         torch.manual_seed(cfg.seed)
         np.random.seed(cfg.seed)
@@ -289,7 +296,22 @@ class Trainer:
         if count == 0:
             raise ValueError("validation file too short for one window")
         mean = total / count
-        return {"val_loss": mean, "val_ppl": safe_exp(mean), "val_tokens": count}
+        out = {"val_loss": mean, "val_ppl": safe_exp(mean), "val_tokens": count}
+        if self.source_val:  # per-source validation loss (Stage 2 mixes)
+            self.model.eval()
+            for name, toks in self.source_val.items():
+                tot, cnt = 0.0, 0
+                for x, y in eval_batches(toks, self.cfg.micro_batch_size, self.cfg.seq_len, max(1, mb // 5)):
+                    x, y = x.to(self.device), y.to(self.device)
+                    with torch.no_grad(), self._autocast():
+                        _, loss = self._fwd(x, y)
+                    tot += loss.item() * y.numel()
+                    cnt += y.numel()
+                if cnt:
+                    out[f"val_loss/{name}"] = tot / cnt
+            if was_training:
+                self.model.train()
+        return out
 
     def sample_texts(self) -> list[dict[str, str]]:
         c = self.cfg

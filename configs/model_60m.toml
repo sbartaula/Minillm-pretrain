@@ -1,0 +1,9 @@
+[model]
+vocab_size = 16384
+n_layers = 10
+d_model = 640
+n_heads = 10
+# ~(8/3)*d_model = 1707, rounded to a multiple of 64
+d_ff = 1728
+max_seq_len = 512
+rope_theta = 10000.0
