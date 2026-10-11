@@ -1,0 +1,90 @@
+{
+  "benchmark": {
+    "all_losses_finite": true,
+    "checkpoint_bytes": 17736800,
+    "checkpoint_save_seconds": 0.08267291100128205,
+    "ckpt_interval": 30,
+    "compile": false,
+    "device": "cpu",
+    "eval_interval": 20,
+    "eval_pass_seconds": 0.5943915160023607,
+    "eval_seconds_per_batch": 0.05943915160023607,
+    "gpu_name": null,
+    "gpu_total_gb": null,
+    "grad_accum_steps": 2,
+    "grad_scaler": false,
+    "loss_first": 9.006994247436523,
+    "loss_last": 8.036521911621094,
+    "micro_batch_size": 8,
+    "model_params": 1475200,
+    "peak_vram_allocated_gb": null,
+    "peak_vram_reserved_gb": null,
+    "precision": "fp32",
+    "sample_interval": 30,
+    "sample_round_seconds": 0.3369863190018805,
+    "seq_len": 128,
+    "step_time_s_mean": 0.3503053614003875,
+    "step_time_s_median": 0.34970195399728254,
+    "timed_steps": 5,
+    "tokens_per_s_mean": 5846.782963781416,
+    "tokens_per_s_median": 5856.415660794148,
+    "tokens_per_step": 2048,
+    "torch": "2.14.1+cpu",
+    "train_tokens_available": 10984035,
+    "warmup_steps": 2
+  },
+  "estimate": {
+    "based_on_device": "cpu",
+    "gpu_name": null,
+    "measured_tokens_per_s": 5846.8,
+    "price_eur_per_hour": null,
+    "rows": [
+      {
+        "cost_eur": null,
+        "cost_note": "UNKNOWN: this benchmark ran on CPU, not a GPU",
+        "epochs_over_available_train_tokens": 0.91,
+        "eval_ckpt_sample_overhead_hours": 0.059,
+        "setup_hours_ASSUMED": 0.25,
+        "steps": 4883,
+        "tokens": 10000000,
+        "total_hours": 0.785,
+        "train_hours": 0.475
+      },
+      {
+        "cost_eur": null,
+        "cost_note": "UNKNOWN: this benchmark ran on CPU, not a GPU",
+        "epochs_over_available_train_tokens": 4.55,
+        "eval_ckpt_sample_overhead_hours": 0.296,
+        "setup_hours_ASSUMED": 0.25,
+        "steps": 24415,
+        "tokens": 50000000,
+        "total_hours": 2.922,
+        "train_hours": 2.375
+      },
+      {
+        "cost_eur": null,
+        "cost_note": "UNKNOWN: this benchmark ran on CPU, not a GPU",
+        "epochs_over_available_train_tokens": 9.1,
+        "eval_ckpt_sample_overhead_hours": 0.593,
+        "setup_hours_ASSUMED": 0.25,
+        "steps": 48829,
+        "tokens": 100000000,
+        "total_hours": 5.594,
+        "train_hours": 4.751
+      },
+      {
+        "cost_eur": null,
+        "cost_note": "UNKNOWN: this benchmark ran on CPU, not a GPU",
+        "epochs_over_available_train_tokens": 18.21,
+        "eval_ckpt_sample_overhead_hours": 1.186,
+        "setup_hours_ASSUMED": 0.25,
+        "steps": 97657,
+        "tokens": 200000000,
+        "total_hours": 10.938,
+        "train_hours": 9.502
+      }
+    ],
+    "setup_minutes_ASSUMPTION_not_measured": 15.0
+  },
+  "sweep": null
+}

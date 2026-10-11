@@ -1,0 +1,36 @@
+# CPU smoke run: proves the whole engine works end to end in about a minute. Not for research.
+[run]
+name = "cpu_smoke"
+out_dir = "runs/cpu_smoke"
+seed = 1337
+
+[paths]
+model_config = "configs/model_tiny.toml"
+tokenizer = "artifacts/tokenizer/tokenizer.json"
+train_bin = "data/tokens/train.bin"
+val_bin = "data/tokens/validation.bin"
+manifest = "data/tokens/prepare_manifest.json"
+
+[train]
+seq_len = 128
+micro_batch_size = 8
+grad_accum_steps = 2
+max_steps = 60
+lr = 3e-3
+min_lr = 3e-4
+warmup_steps = 10
+weight_decay = 0.1
+grad_clip = 1.0
+precision = "fp32"
+device = "cpu"
+eval_interval = 20
+eval_batches = 10
+log_interval = 5
+ckpt_interval = 30
+sample_interval = 30
+
+[generation]
+prompts = ["Once upon a time", "Tom and Lily went to the"]
+max_new_tokens = 40
+temperature = 0.8
+top_k = 40

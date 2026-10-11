@@ -1,0 +1,8 @@
+# Kaggle images ship a CUDA build of torch: do NOT reinstall it. Needs torch >= 2.3.
+datasets
+tokenizers
+numpy
+safetensors
+matplotlib
+tqdm
+pytest

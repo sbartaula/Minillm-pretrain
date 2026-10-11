@@ -1,0 +1,96 @@
+{
+  "dataset": "roneneldan/TinyStories",
+  "dtype": "uint16",
+  "eos_id": 2,
+  "files": {
+    "train": "data/tokens/train.bin",
+    "validation": "data/tokens/validation.bin"
+  },
+  "libraries": {
+    "datasets": "5.1.0",
+    "numpy": "2.5.3",
+    "tokenizers": "0.23.3"
+  },
+  "license": "cdla-sharing-1.0",
+  "preprocess_config": {
+    "max_chars": 10000,
+    "min_chars": 50,
+    "unicode_form": "NFC"
+  },
+  "raw_files": {
+    "train": {
+      "path": "data/raw/train_prep.jsonl",
+      "sha256": "88e3f6396a60b3c4635a61f2ec21bf6b2bd10f34ac5cc3ccd75e4b74d5ac8dd9"
+    },
+    "validation": {
+      "path": "data/raw/validation_prep.jsonl",
+      "sha256": "70b2dc8b404fe282b8dcde58eb1361dd53ce84feb56e2f8462427de75f74387d"
+    }
+  },
+  "revision": "f54c09fd23315a6f9c86f9dc80f725de7d8f9c64",
+  "sampling": {
+    "method": "HF streaming + seeded buffered shuffle, first N rows",
+    "requested_train_docs": 50000,
+    "requested_validation_docs": 1000,
+    "seed_train": 1337,
+    "seed_validation": 1338,
+    "shuffle_buffer": 10000
+  },
+  "tokenizer": {
+    "path": "artifacts/tokenizer/tokenizer.json",
+    "sha256": "ffe5be10f6b3765f4d10c97724c885ec2c53113d2fba8d3f02f34e793597d47f",
+    "vocab_size": 8192
+  },
+  "train": {
+    "bytes": 21968070,
+    "n_docs": 49952,
+    "n_raw": 50000,
+    "n_tokens": 10984035,
+    "preprocess": {
+      "invalid_by_reason": {
+        "unrepaired_mojibake": 1
+      },
+      "n_exact_duplicates_removed": 47,
+      "n_input": 50000,
+      "n_invalid": 1,
+      "n_kept": 49952,
+      "n_modified_by_normalization": 19241
+    },
+    "removed_special_token_text": 0,
+    "sha256": "2bd5c55dbe85b8837e91ffcb3c1b91b373c2147df9a30729cb500d3546c2b17d",
+    "tokens_per_doc": {
+      "max": 1144,
+      "mean": 219.89,
+      "min": 35,
+      "p1": 100,
+      "p50": 189,
+      "p99": 643
+    }
+  },
+  "validation": {
+    "bytes": 407598,
+    "n_docs": 1000,
+    "n_overlap_with_train_after_filtering": 0,
+    "n_raw": 1000,
+    "n_tokens": 203799,
+    "preprocess": {
+      "invalid_by_reason": {},
+      "n_exact_duplicates_removed": 0,
+      "n_input": 1000,
+      "n_invalid": 0,
+      "n_kept": 1000,
+      "n_modified_by_normalization": 408
+    },
+    "removed_loose_overlap_with_train": 0,
+    "removed_special_token_text": 0,
+    "sha256": "0feb28482dcf971db97710e2245567711554596950d8f795018230a37857158c",
+    "tokens_per_doc": {
+      "max": 1070,
+      "mean": 203.8,
+      "min": 64,
+      "p1": 93,
+      "p50": 181,
+      "p99": 646
+    }
+  }
+}

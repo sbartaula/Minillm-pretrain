@@ -1,0 +1,11 @@
+# Only the differences from configs/data.toml. ~600k stories ~= 125M training tokens.
+extends = "data.toml"
+
+[prepare]
+train_docs = 600000
+validation_docs = 5000
+raw_train = "data/raw_kaggle/train_prep.jsonl"
+raw_validation = "data/raw_kaggle/validation_prep.jsonl"
+train_bin = "data/tokens_kaggle/train.bin"
+validation_bin = "data/tokens_kaggle/validation.bin"
+manifest = "data/tokens_kaggle/prepare_manifest.json"

@@ -1,0 +1,48 @@
+# Single source of truth for Session 1. Every value here is copied into the manifests.
+seed = 1337
+
+[dataset]
+name = "roneneldan/TinyStories"
+# Pinned commit of the HF dataset repo -> the data cannot silently change under us.
+revision = "f54c09fd23315a6f9c86f9dc80f725de7d8f9c64"
+text_field = "text"
+
+[sample]
+train_docs = 10000
+validation_docs = 1000
+# Streaming shuffle buffer. Larger = closer to a uniform sample, but slower to fill.
+shuffle_buffer = 10000
+
+[preprocess]
+min_chars = 50
+max_chars = 10000
+# "NFC" keeps visually identical strings byte-identical (e.g. composed vs decomposed accents).
+unicode_form = "NFC"
+
+[tokenizer]
+vocab_size = 8192
+min_frequency = 2
+# Order matters: ids 0,1,2. <|endoftext|> separates documents in the training stream.
+special_tokens = ["<|pad|>", "<|bos|>", "<|endoftext|>"]
+
+[paths]
+raw_train = "data/raw/train_sample.jsonl"
+raw_validation = "data/raw/validation_sample.jsonl"
+clean_train = "data/processed/train_clean.jsonl"
+clean_validation = "data/processed/validation_clean.jsonl"
+train_manifest = "data/processed/train_manifest.json"
+validation_manifest = "data/processed/validation_manifest.json"
+tokenizer = "artifacts/tokenizer/tokenizer.json"
+tokenizer_meta = "artifacts/tokenizer/tokenizer_meta.json"
+report = "reports/data_report.json"
+
+# ---- Session 3: tokenized training corpus -------------------------------------------------
+[prepare]
+# Local development subset. The 10,000 stories of Session 1 are the first 10,000 of this stream.
+train_docs = 50000
+validation_docs = 1000
+raw_train = "data/raw/train_prep.jsonl"
+raw_validation = "data/raw/validation_prep.jsonl"
+train_bin = "data/tokens/train.bin"
+validation_bin = "data/tokens/validation.bin"
+manifest = "data/tokens/prepare_manifest.json"

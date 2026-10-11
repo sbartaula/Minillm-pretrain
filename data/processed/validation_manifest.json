@@ -1,0 +1,26 @@
+{
+  "clean_file": "data/processed/validation_clean.jsonl",
+  "clean_sha256": "79b2247da9dce72897c5e45ba50ff68fd97f7f83abb2a1a6762ba96666de118c",
+  "dataset": "roneneldan/TinyStories",
+  "libraries": {
+    "datasets": "5.1.0",
+    "numpy": "2.5.3",
+    "python": "3.12.3",
+    "tokenizers": "0.23.3",
+    "torch": "2.14.1+cpu"
+  },
+  "license": "cdla-sharing-1.0",
+  "n_clean": 1000,
+  "n_raw": 1000,
+  "preprocess_config": {
+    "max_chars": 10000,
+    "min_chars": 50,
+    "unicode_form": "NFC"
+  },
+  "raw_file": "data/raw/validation_sample.jsonl",
+  "raw_sha256": "70b2dc8b404fe282b8dcde58eb1361dd53ce84feb56e2f8462427de75f74387d",
+  "revision": "f54c09fd23315a6f9c86f9dc80f725de7d8f9c64",
+  "sampling": "streaming + buffered shuffle(buffer=10000)",
+  "seed": 1338,
+  "split": "validation"
+}

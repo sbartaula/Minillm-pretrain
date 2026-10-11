@@ -1,0 +1,11 @@
+# RunPod corpus paths. Prepare this on the laptop before renting a GPU pod.
+extends = "data.toml"
+
+[prepare]
+train_docs = 600000
+validation_docs = 5000
+raw_train = "data/raw_runpod/train_prep.jsonl"
+raw_validation = "data/raw_runpod/validation_prep.jsonl"
+train_bin = "data/tokens_runpod/train.bin"
+validation_bin = "data/tokens_runpod/validation.bin"
+manifest = "data/tokens_runpod/prepare_manifest.json"

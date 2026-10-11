@@ -1,0 +1,72 @@
+{
+  "train": {
+    "preprocess": {
+      "invalid_by_reason": {},
+      "n_exact_duplicates_removed": 0,
+      "n_input": 10000,
+      "n_invalid": 0,
+      "n_kept": 10000,
+      "n_modified_by_normalization": 3935
+    },
+    "stats": {
+      "chars_per_doc": {
+        "max": 4291,
+        "mean": 871.92,
+        "min": 158,
+        "p1": 415,
+        "p50": 778,
+        "p99": 2386
+      },
+      "distinct_characters": 78,
+      "n_docs": 10000,
+      "non_ascii_characters": {
+        "é": 2
+      },
+      "total_chars": 8719191,
+      "total_words": 1706623,
+      "words_per_doc": {
+        "max": 837,
+        "mean": 170.66,
+        "min": 36,
+        "p1": 84,
+        "p50": 151,
+        "p99": 473
+      }
+    }
+  },
+  "validation": {
+    "preprocess": {
+      "invalid_by_reason": {},
+      "n_exact_duplicates_removed": 0,
+      "n_input": 1000,
+      "n_invalid": 0,
+      "n_kept": 1000,
+      "n_modified_by_normalization": 408
+    },
+    "stats": {
+      "chars_per_doc": {
+        "max": 3910,
+        "mean": 835.89,
+        "min": 254,
+        "p1": 385,
+        "p50": 754,
+        "p99": 2456
+      },
+      "distinct_characters": 65,
+      "n_docs": 1000,
+      "non_ascii_characters": {
+        "é": 3
+      },
+      "total_chars": 835890,
+      "total_words": 163371,
+      "words_per_doc": {
+        "max": 782,
+        "mean": 163.37,
+        "min": 53,
+        "p1": 79,
+        "p50": 147,
+        "p99": 506
+      }
+    }
+  }
+}

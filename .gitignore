@@ -1,0 +1,15 @@
+.venv/
+__pycache__/
+*.egg-info/
+.pytest_cache/
+# Corpora, token files, runs and checkpoints are reproducible: manifests carry their hashes.
+data/raw/
+data/raw_kaggle/
+data/raw_runpod/
+data/processed/*.jsonl
+data/tokens/*.bin
+data/tokens_kaggle/*.bin
+data/tokens_runpod/*.bin
+runs/
+*.pt
+*.tmp

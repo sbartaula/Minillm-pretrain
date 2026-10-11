@@ -1,0 +1,56 @@
+# Kaggle single-GPU configuration (T4 / P100 -> fp16 + GradScaler; A100/H100 -> bf16, auto-detected).
+# Prepare data first:  tenslam prepare --config configs/data_kaggle.toml
+# 32 x 4 x 512 = 65,536 tokens per optimizer step.
+[run]
+name = "tenslam_30m"
+out_dir = "runs/tenslam_30m"
+seed = 1337
+
+[paths]
+model_config = "configs/model.toml"
+tokenizer = "artifacts/tokenizer/tokenizer.json"
+train_bin = "data/tokens_kaggle/train.bin"
+val_bin = "data/tokens_kaggle/validation.bin"
+manifest = "data/tokens_kaggle/prepare_manifest.json"
+
+[train]
+seq_len = 512
+micro_batch_size = 32
+grad_accum_steps = 4
+# Token budget -> number of steps; the cosine schedule is sized to this horizon.
+# NOT final: Session 4 chooses it after reviewing the GPU benchmark.
+max_tokens = 100_000_000
+# Wall-clock guard: Kaggle sessions are limited (~9 h GPU). A time stop saves a resumable
+# checkpoint plus an export, but the LR will not have finished decaying.
+max_hours = 8.0
+lr = 1e-3
+min_lr = 1e-4
+warmup_steps = 150
+weight_decay = 0.1
+beta1 = 0.9
+beta2 = 0.95
+grad_clip = 1.0
+precision = "auto"
+device = "auto"
+compile = false
+eval_interval = 250
+eval_batches = 50
+log_interval = 10
+ckpt_interval = 250
+sample_interval = 500
+
+[generation]
+prompts = [
+  "Once upon a time, there was a little girl named",
+  "Tom and his dog went to the park. Suddenly",
+  "The robot was sad because",
+]
+max_new_tokens = 120
+temperature = 0.8
+top_k = 40
+
+[cost]
+# Explicit price per GPU hour in EUR. Left unset on purpose: cost stays "unknown" until you
+# type a real price. (Kaggle's free quota would be 0.0; Runpod needs the live listed price.)
+# hourly_price_eur = 0.0
+setup_minutes = 15

@@ -1,0 +1,12 @@
+# Tiny model for CPU smoke tests ONLY. Same architecture and code path as configs/model.toml.
+[model]
+vocab_size = 8192
+n_layers = 2
+d_model = 128
+n_heads = 4
+d_ff = 384
+max_seq_len = 128
+rope_theta = 10000.0
+norm_eps = 1e-5
+init_std = 0.02
+tie_embeddings = true

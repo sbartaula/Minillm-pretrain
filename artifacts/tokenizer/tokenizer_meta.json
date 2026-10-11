@@ -1,0 +1,55 @@
+{
+  "config": {
+    "min_frequency": 2,
+    "special_tokens": [
+      "<|pad|>",
+      "<|bos|>",
+      "<|endoftext|>"
+    ],
+    "vocab_size": 8192
+  },
+  "libraries": {
+    "datasets": "5.1.0",
+    "numpy": "2.5.3",
+    "python": "3.12.3",
+    "tokenizers": "0.23.3",
+    "torch": "2.14.1+cpu"
+  },
+  "special_tokens": {
+    "<|bos|>": 1,
+    "<|endoftext|>": 2,
+    "<|pad|>": 0
+  },
+  "tokenizer_sha256": "ffe5be10f6b3765f4d10c97724c885ec2c53113d2fba8d3f02f34e793597d47f",
+  "train_tokens": {
+    "chars_per_token": 4.12,
+    "docs_over_512_tokens": 255,
+    "n_docs": 10000,
+    "tokens_per_doc": {
+      "max": 1144,
+      "mean": 212.62,
+      "min": 43,
+      "p1": 99,
+      "p50": 186,
+      "p99": 615
+    },
+    "total_tokens_incl_eos": 2126197
+  },
+  "trained_on": "data/processed/train_clean.jsonl",
+  "trained_on_sha256": "945afe93930f6d1299e26f2571d3cba3728e659ea3a0efb23761af0a4354c874",
+  "validation_tokens": {
+    "chars_per_token": 4.122,
+    "docs_over_512_tokens": 20,
+    "n_docs": 1000,
+    "tokens_per_doc": {
+      "max": 1070,
+      "mean": 203.8,
+      "min": 64,
+      "p1": 93,
+      "p50": 181,
+      "p99": 646
+    },
+    "total_tokens_incl_eos": 203799
+  },
+  "vocab_size": 8192
+}

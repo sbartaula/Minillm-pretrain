@@ -1,0 +1,19 @@
+[model]
+vocab_size = 8192
+n_layers = 8
+d_model = 512
+n_heads = 8
+# SwiGLU hidden width. ~(8/3)*d_model = 1365, rounded to a multiple of 64 for GPU-friendly shapes.
+d_ff = 1408
+max_seq_len = 512
+rope_theta = 10000.0
+norm_eps = 1e-5
+init_std = 0.02
+tie_embeddings = true
+
+[sanity]
+seed = 1337
+batch_size = 4
+seq_len = 128
+steps = 200
+lr = 1e-3
