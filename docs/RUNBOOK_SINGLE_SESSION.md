@@ -4,7 +4,7 @@ Numbers marked (est.) are estimates from the measured A5000 benchmark, not measu
 You create and terminate the pod. Terminating (not just stopping) ends the billing.
 
 ## What you upload: ONE file
-`/home/saroj/Aihackathon/tenslam-minilm-runpod.zip` (code + the 8k tokenizer, ~0.6 MB).
+`/home/saroj/Aihackathon/tenslam-minilm-runpod.zip` (code + the 8k tokenizer, ~190 KB).
 Large uploads were truncated by JupyterLab (56 MB, 20 MB, and 11 of 13 pieces of 10 MB). Small files survived,
 so nothing large is uploaded: the pod downloads and tokenizes the datasets itself.
 
@@ -22,7 +22,7 @@ RTX A5000 (24 GB) or similar, Runpod PyTorch 2.8 template, **container disk 30 G
 
 ### 1. Setup
 ```bash
-cd /workspace && ls -l tenslam-minilm-runpod.zip     # ~600 KB; if tiny/odd, re-upload
+cd /workspace && ls -l tenslam-minilm-runpod.zip     # must be exactly 192223 bytes; else re-upload
 unzip -tq tenslam-minilm-runpod.zip | tail -1         # "No errors detected"
 unzip -q tenslam-minilm-runpod.zip -d /tmp/x && bash /tmp/x/scripts/pod_setup.sh
 ```
