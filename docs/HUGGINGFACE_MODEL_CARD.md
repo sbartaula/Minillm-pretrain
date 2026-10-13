@@ -11,50 +11,59 @@ tags:
 
 # Tenslam MiniLM Stage 2
 
-> **Publication status: HOLD.** Dataset and source-text redistribution rights have not been resolved, so do not
-> upload these weights publicly yet. This Hugging Face repository is a project page with this card only; it
-> contains no model weights, tokenizer or config files. This card deliberately does not declare a model-weight
-> licence.
->
-> The GitHub source code is MIT-licensed. That code licence does not apply to datasets or these trained weights.
+This page describes the project; model files are not hosted here. See the
+[GitHub source repository](https://github.com/sbartaula/Minillm-pretrain) for code and instructions. The
+source code is MIT-licensed; that licence does not apply to the datasets or trained weights.
 
 ## Model summary
 
-Tenslam MiniLM Stage 2 is a 60.1M-parameter decoder-only language model pretrained from random initialization
-to predict the next token. It is an educational artifact for studying tokenization, Transformer training,
-evaluation and inference. It is a base text-completion model, not an instruction-tuned chatbot.
+Tenslam MiniLM is an educational project that implements and trains small decoder-only language models from
+random initialization. Stage 2 is a 60.1M-parameter base language model trained to predict the next token from a
+prompt. It is useful for studying the end-to-end mechanics of pretraining; it is **not** an instruction-tuned
+chatbot or a reliable source of facts.
 
-**Files are not hosted here.** This page is for project information and points to the
-[MIT-licensed source repository](https://github.com/sbartaula/Minillm-pretrain). To run the trained model, a user
-needs a separate copy of its four-file inference export. The weights are not publicly downloadable while source
-and dataset redistribution terms are being reviewed.
+**Model files are not hosted on this page.** This page provides the project description, training information,
+sample outputs and limitations. The [GitHub repository](https://github.com/sbartaula/Minillm-pretrain) provides
+source code, tests and instructions. A separate lawful copy of the inference export is required to run Stage 2.
+
+## What the project includes
+
+- **Stage 1:** 29.9M parameters, trained from scratch on 100M TinyStories tokens.
+- **Stage 2:** 60,060,800 parameters, trained from scratch on a six-source text mix.
+- A custom PyTorch Transformer, byte-level BPE tokenizer, data preparation pipeline, training/checkpoint code,
+  CPU generation and reproducibility tools.
+
+The project is intended to help learners understand and reproduce the engineering workflow—not to compete with
+large pretrained foundation models.
 
 ## Architecture
 
-- 10 decoder blocks; width 640; 10 attention heads; feed-forward width 1,728
-- Causal attention, RoPE, RMSNorm, SwiGLU, tied embeddings
-- 512-token context; byte-level BPE tokenizer with 16,384 tokens
+- Decoder-only, pre-norm Transformer with 10 layers
+- Width 640; 10 causal attention heads (64 dimensions per head)
+- RoPE positional encoding, RMSNorm, SwiGLU feed-forward layers, tied token embedding/output weights
+- 512-token context; 16,384-token byte-level BPE vocabulary
 - 60,060,800 parameters
-- Custom PyTorch implementation; this export is not a Transformers `AutoModelForCausalLM` checkpoint
+- Implemented in PyTorch; this is a Tenslam export, not a Transformers `AutoModelForCausalLM` checkpoint
 
 ## Training
 
-Trained on an NVIDIA L4 using BF16 autocast, AdamW, gradient accumulation, gradient clipping, warmup and cosine
-learning-rate decay. The run stopped at its configured 5.5-hour wall-clock limit:
+Stage 2 was trained on an NVIDIA L4 with BF16 autocast, AdamW, gradient accumulation, gradient clipping, warmup
+and cosine learning-rate decay. It stopped normally at its configured 5.5-hour limit:
 
-- Step 12,076; 791,412,736 tokens seen (planned target: 1B)
-- Throughput around 40.7k tokens/s
-- Inference weights exported as F32 safetensors
+- Steps completed: 12,076 of 15,259 planned
+- Tokens processed: 791,412,736 of the 1B-token target
+- Throughput: approximately 40.7k tokens/second
+- Inference export: F32 values in `model.safetensors`
 
-### Evaluation and caveat
+The original resumable `last.pt` training checkpoint was not included in the recovered download. The recovered
+inference export supports generation, but not exact resumption of that training run.
 
-The archived `val_loss=1.567` / perplexity `4.79` at step 12,000 is a TinyStories-only partial validation
-slice, not a representative mixed-corpus metric. Per-source metrics are also partial slices. The recovered
-package does not include validation token files, so a full mixed-source validation score cannot be calculated.
-Seven-prompt greedy and sampled CPU continuations are recorded in the project recovery report; they show
-repetition and factual hallucinations. These are qualitative probes, not a benchmark.
+## Evaluation
 
-Examples from deterministic greedy generation:
+Local CPU inference was verified using greedy and sampled decoding on seven prompts. Simple story continuations
+can be readable, but the model also repeats itself and generates false details.
+
+Examples from greedy generation:
 
 > **Story prompt:** “Once upon a time, a young girl found a map”
 >
@@ -65,13 +74,23 @@ Examples from deterministic greedy generation:
 > “a paper on the theory of relativity, which was published in the Journal of Physics. Einstein's paper was
 > published in the Journal of Physics in 1908.”
 
-The story continuation is coherent, while the historical details are false. This illustrates why the model
-should not be treated as a factual reference or assistant.
+The story continuation is locally coherent; the historical continuation includes invented details. These are
+illustrative examples, not a benchmark.
+
+### Validation metric limitation
+
+The archived `val_loss=1.567` / perplexity `4.79` at step 12,000 is **not** a mixed-corpus score: the original
+evaluator used the first 819,200 tokens in the concatenated validation file, which were from TinyStories.
+Per-source losses are also partial slices. The recovered package does not include the validation token files,
+so full mixed-source validation cannot be recomputed. Do not compare or present that aggregate as a
+representative six-source result. Details are in the
+[recovery report](https://github.com/sbartaula/Minillm-pretrain/blob/main/reports/stage2_recovery.md).
 
 ## Training data and rights status
 
-Data preparation pinned revisions, separated validation at document level, filtered duplicates and recorded
-source/content hashes. No raw training data is redistributed with the model.
+Stage 2 used pinned dataset revisions. Preparation split by source document, filtered invalid and duplicate
+documents, kept tokenizer training restricted to training text, and recorded source revisions and hashes. No
+raw training data is included in this project page.
 
 | Source | Pinned revision | Dataset card's listed terms | Important qualification |
 |---|---|---|---|
@@ -82,34 +101,36 @@ source/content hashes. No raw training data is redistributed with the model.
 | [Cosmopedia Stanford](https://huggingface.co/datasets/HuggingFaceTB/cosmopedia/tree/0ae6ec63f91742bd2d1eaef4f02232c55d719385) | `0ae6ec6` | Apache-2.0 on dataset card | Generated text; upstream seed-data provenance and terms still matter. |
 | [Cosmopedia OpenStax](https://huggingface.co/datasets/HuggingFaceTB/cosmopedia/tree/0ae6ec63f91742bd2d1eaef4f02232c55d719385) | `0ae6ec6` | Apache-2.0 on dataset card | Generated text; upstream seed-data provenance and terms still matter. |
 
-Dataset-card labels alone do not establish that every underlying text or model weight can be redistributed
-under one common licence. This is a provenance disclosure, not legal advice. Public weight release is on hold
-pending a source-specific rights review.
+These are the terms and cautions reported by the upstream dataset cards; they are not a determination that
+redistribution of every source text or the combined model weights is permitted. In particular, the Gutenberg
+card warns that some books may still be copyrighted, and FineWeb's database terms do not settle rights for every
+source web page. This is a provenance summary, not legal advice. This page does not declare a licence for the
+trained weights.
 
 Primary terms to review:
 
-- [CDLA Sharing 1.0](https://cdla.dev/sharing-1-0/)
-- [ODC Attribution 1.0](https://opendatacommons.org/licenses/by/1-0/)
-- [Creative Commons Attribution-ShareAlike 3.0](https://creativecommons.org/licenses/by-sa/3.0/) and
-  [GNU FDL 1.3](https://www.gnu.org/licenses/fdl-1.3.html)
+- [CDLA Sharing 1.0](https://cdla.dev/sharing-1-0/), [ODC Attribution 1.0](https://opendatacommons.org/licenses/by/1-0/)
+- [CC BY-SA 3.0](https://creativecommons.org/licenses/by-sa/3.0/) and [GNU FDL 1.3](https://www.gnu.org/licenses/fdl-1.3.html)
 - [Project Gutenberg permissions and copyright guidance](https://www.gutenberg.org/policy/permission.html)
 - [Apache License 2.0](https://www.apache.org/licenses/LICENSE-2.0)
 
-These source terms do not by themselves settle whether this trained model's weights can be redistributed.
-
 ## Intended use and limitations
 
-Educational experimentation, local inference and studying small-scale pretraining. The model may repeat,
-produce incoherent passages, or state false facts. It has no instruction tuning, safety training, or reliable
-question-answering ability. Do not use it for high-stakes applications or as a factual source.
+For education, experimentation and local inference. The model may repeat, produce incoherent passages or state
+false facts. It has no instruction tuning, chat template, safety training or reliable question-answering ability.
+Do not use it for high-stakes decisions or as a factual source.
 
-## Files and use
+## Files and local use
 
-`model.safetensors`, `config.json`, `tokenizer.json`, and `export_info.json` form the Tenslam inference export.
-Use the Tenslam repository's custom loader and tokenizer. `model.safetensors` contains weights only; it is not
-a training-resume checkpoint.
+When available, the Tenslam inference export consists of:
 
-If you have a lawfully obtained local copy of all four files, clone the code and run:
+- `model.safetensors` — model weights only
+- `config.json` — architecture configuration
+- `tokenizer.json` — tokenizer model and vocabulary
+- `export_info.json` — parameter count and artifact hashes
+
+The export is separate from the `.pt` training checkpoint. If you have a lawful copy of all four export files,
+clone the source code and install the CPU dependencies:
 
 ```bash
 git clone https://github.com/sbartaula/Minillm-pretrain.git
@@ -124,12 +145,12 @@ tenslam generate --export-dir /path/to/downloaded/model-files \
   --prompt "Once upon a time, a young girl found a map"
 ```
 
-The export directory must contain the four files listed above. `--export-dir` is a local folder, not a
-Transformers model ID; Tenslam loads its own custom architecture. It generates text continuations and does not
-provide a chat interface or instruction-following behavior.
+`--export-dir` must point to a local folder containing those four files. This is a completion interface, not a
+chat interface. This project page contains documentation only; it does not offer a model download.
 
 ## Reproducibility
 
-Source code: [sbartaula/Minillm-pretrain](https://github.com/sbartaula/Minillm-pretrain). See its technical
-overview for implementation, configuration and tests. The recovered archive records source revisions, tokenizer
-and weight hashes, metrics and logs. The full training corpus and resumable Stage 2 checkpoint are not included.
+See the [source repository](https://github.com/sbartaula/Minillm-pretrain) for implementation, configuration,
+tests and a beginner-friendly [technical overview](https://github.com/sbartaula/Minillm-pretrain/blob/main/docs/TECHNICAL_OVERVIEW.md).
+The recovered run records source revisions, tokenizer and weight hashes, metrics and logs. The full training
+corpus and resumable Stage 2 checkpoint are not included.
