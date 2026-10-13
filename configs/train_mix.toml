@@ -20,7 +20,7 @@ grad_accum_steps = 4
 max_tokens = 1000000000
 # Safety default: 30-minute maximum. After benchmarking, lower this if needed so
 # (max_hours + setup/checkpoint reserve) * RunPod EUR/hour remains below the €8 budget.
-max_hours = 6.0
+max_hours = 5.5
 lr = 6e-4
 min_lr = 6e-5
 warmup_steps = 500

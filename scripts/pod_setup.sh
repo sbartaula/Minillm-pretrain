@@ -14,5 +14,5 @@ import torch
 assert torch.cuda.is_available(), "no CUDA GPU visible"
 print("GPU:", torch.cuda.get_device_name(0), "| bf16:", torch.cuda.is_bf16_supported())
 PY
-python -m pytest -q
-echo "SETUP DONE. Next: export HF_TOKEN=..., then bash scripts/pod_stage1_data.sh"
+if [ "${RUN_TESTS:-0}" = "1" ]; then python -m pytest -q; else echo "tests skipped (RUN_TESTS=1 to run; ~11 min on this pod type)"; fi
+echo "SETUP DONE."

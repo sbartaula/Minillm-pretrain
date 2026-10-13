@@ -5,9 +5,11 @@ checkpointing and cost estimator. About 30M parameters, trained on TinyStories. 
 part of how an LLM is built, in code small enough to read in an afternoon, with the engineering habits of a
 real project (pinned data, hashes, tests, reproducible runs).
 
-> **Status:** the data pipeline, model and training engine are done and tested (88 tests pass, 1 CUDA-only test
-> is skipped on CPU machines). A real GPU benchmark was run. **The full 100M-token pretraining run has not
-> been done yet**, so there are no trained-model quality numbers in this repository. They will be added as measured.
+> **Status:** the data pipeline, model and training engine are done and tested (91 tests pass, 1 skipped).
+> **Stage 1 is trained:** a 29.9M-parameter model on 100M TinyStories tokens (1,004 s on one GPU) reached
+> validation loss **1.631 (perplexity 5.11)**; curve and logs in [reports/stage1_30m_tinystories](reports/stage1_30m_tinystories).
+> Stage 2 (60M parameters, multi-source data) is prepared but not trained yet; see
+> [docs/RUNBOOK_STAGE2.md](docs/RUNBOOK_STAGE2.md). No pretrained weights are used anywhere.
 
 ## What is in here
 

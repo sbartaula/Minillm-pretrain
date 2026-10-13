@@ -1,5 +1,7 @@
 # One pod session: Stage 1 baseline, then Stage 2 mix
 
+> Stage 2 pod procedure: [RUNBOOK_STAGE2.md](RUNBOOK_STAGE2.md) (this file is superseded).
+
 Numbers marked (est.) are estimates from the measured A5000 benchmark, not measurements.
 You create and terminate the pod. Terminating (not just stopping) ends the billing.
 

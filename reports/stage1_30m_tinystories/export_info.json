@@ -1,0 +1,14 @@
+{
+  "best_val_loss": 1.631194636821747,
+  "format": "tenslam-inference-v1",
+  "n_params": 29893120,
+  "step": 1526,
+  "stop_reason": "completed",
+  "tokenizer_sha256": "ffe5be10f6b3765f4d10c97724c885ec2c53113d2fba8d3f02f34e793597d47f",
+  "tokens_seen": 100007936,
+  "torch": "2.8.0+cu128",
+  "val_loss": 1.631194636821747,
+  "val_ppl": 5.109975638675414,
+  "val_tokens": 819200,
+  "weights_sha256": "9f4665c0f815142500cf77a7d949829797cf7a0977b0fb404cedee0ee0db428a"
+}
