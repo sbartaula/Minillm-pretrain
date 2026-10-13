@@ -12,7 +12,9 @@ tags:
 # Tenslam MiniLM Stage 2
 
 > **Publication status: HOLD.** Dataset and source-text redistribution rights have not been resolved, so do not
-> upload these weights publicly yet. This draft deliberately does not declare a model-weight licence.
+> upload these weights publicly yet. This Hugging Face repository is a project page with this card only; it
+> contains no model weights, tokenizer or config files. This card deliberately does not declare a model-weight
+> licence.
 >
 > The GitHub source code is MIT-licensed. That code licence does not apply to datasets or these trained weights.
 
@@ -21,6 +23,11 @@ tags:
 Tenslam MiniLM Stage 2 is a 60.1M-parameter decoder-only language model pretrained from random initialization
 to predict the next token. It is an educational artifact for studying tokenization, Transformer training,
 evaluation and inference. It is a base text-completion model, not an instruction-tuned chatbot.
+
+**Files are not hosted here.** This page is for project information and points to the
+[MIT-licensed source repository](https://github.com/sbartaula/Minillm-pretrain). To run the trained model, a user
+needs a separate copy of its four-file inference export. The weights are not publicly downloadable while source
+and dataset redistribution terms are being reviewed.
 
 ## Architecture
 
@@ -46,6 +53,20 @@ slice, not a representative mixed-corpus metric. Per-source metrics are also par
 package does not include validation token files, so a full mixed-source validation score cannot be calculated.
 Seven-prompt greedy and sampled CPU continuations are recorded in the project recovery report; they show
 repetition and factual hallucinations. These are qualitative probes, not a benchmark.
+
+Examples from deterministic greedy generation:
+
+> **Story prompt:** “Once upon a time, a young girl found a map”
+>
+> “She was very excited and wanted to show it to her mom. She ran to her mom and said, ‘Mom, look what I found!’”
+
+> **Factual prompt:** “In 1905, Albert Einstein published”
+>
+> “a paper on the theory of relativity, which was published in the Journal of Physics. Einstein's paper was
+> published in the Journal of Physics in 1908.”
+
+The story continuation is coherent, while the historical details are false. This illustrates why the model
+should not be treated as a factual reference or assistant.
 
 ## Training data and rights status
 
@@ -88,7 +109,7 @@ question-answering ability. Do not use it for high-stakes applications or as a f
 Use the Tenslam repository's custom loader and tokenizer. `model.safetensors` contains weights only; it is not
 a training-resume checkpoint.
 
-Once the weight release is cleared and the files are available from the model repository, clone the code and run:
+If you have a lawfully obtained local copy of all four files, clone the code and run:
 
 ```bash
 git clone https://github.com/sbartaula/Minillm-pretrain.git
@@ -98,8 +119,9 @@ tenslam generate --export-dir /path/to/downloaded/model-files \
   --prompt "Once upon a time, a young girl found a map"
 ```
 
-The export directory must contain the four files listed above. `--export-dir` is not a Transformers model ID;
-Tenslam loads its own custom architecture.
+The export directory must contain the four files listed above. `--export-dir` is a local folder, not a
+Transformers model ID; Tenslam loads its own custom architecture. It generates text continuations and does not
+provide a chat interface or instruction-following behavior.
 
 ## Reproducibility
 

@@ -7,6 +7,8 @@ afternoon, with the engineering habits of a real project (pinned data, hashes, t
 
 **Source repository:** [sbartaula/Minillm-pretrain](https://github.com/sbartaula/Minillm-pretrain)
 
+**Hugging Face project page:** [saroj479/tenslam-minilm-60m](https://huggingface.co/saroj479/tenslam-minilm-60m)
+
 > **Status:** the data pipeline, model and training engine are implemented and tested.
 > **Stage 1:** a 29.9M-parameter model trained on 100M TinyStories tokens (1,004 s on one GPU), with validation
 > loss **1.631 (perplexity 5.11)**.
@@ -15,7 +17,8 @@ afternoon, with the engineering habits of a real project (pinned data, hashes, t
 > the original validation windowing. See [the recovery report](reports/stage2_recovery.md); do not cite that
 > aggregate as mixed-corpus validation.
 > No pretrained weights are used anywhere. This is a learning project, not an instruction-tuned assistant.
-> Stage 2 weight redistribution terms are under review; there is no public model upload link yet.
+> Stage 2 weight redistribution terms are under review; the Hugging Face page currently contains documentation
+> only, not weights.
 
 ## What is in here
 
@@ -92,6 +95,33 @@ python scripts/evaluate_export.py \
 
 The script checks the tokenizer hash, vocabulary size and model parameter count, then saves greedy and sampled
 continuations for story, factual, expository, arithmetic, question-answering and out-of-domain prompts.
+
+## Try the trained model locally
+
+The Hugging Face page is a **project/model card only**: it does not host the weights. The GitHub repository
+contains the code and instructions, not the trained model files. To generate text, you need your own lawful copy
+of all four Stage 2 inference-export files:
+
+```text
+model.safetensors
+config.json
+tokenizer.json
+export_info.json
+```
+
+After cloning this repository, installing its dependencies as in Quick start, and placing those files together
+in an export directory:
+
+```bash
+tenslam generate \
+  --export-dir /path/to/tenslam-export \
+  --prompt "Once upon a time, a young girl found a map"
+```
+
+This runs locally on CPU; CUDA is optional. The model continues text and is **not a chat assistant**: it was not
+instruction-tuned, has no chat template, and may repeat or invent facts. GitHub alone cannot run the trained
+Stage 2 model until you supply the model files. The complete evaluation JSON is a private local artifact and is
+not included in this repository.
 
 ## Design choices in one page
 

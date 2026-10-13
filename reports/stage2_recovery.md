@@ -104,6 +104,22 @@ Observed behavior:
 This is a small **base text-continuation model**, not an instruction-tuned chatbot. These qualitative examples
 are a small diagnostic set, not a benchmark or a capability claim.
 
+Representative greedy outputs from the fixed prompt suite:
+
+> **Prompt:** “Once upon a time, a young girl found a map”
+>
+> **Continuation:** “She was very excited and wanted to show it to her mom. She ran to her mom and said,
+> ‘Mom, look what I found!’”
+
+> **Prompt:** “In 1905, Albert Einstein published”
+>
+> **Continuation:** “a paper on the theory of relativity, which was published in the Journal of Physics.
+> Einstein's paper was published in the Journal of Physics in 1908.”
+
+The story continuation is locally coherent; the historical continuation invents incorrect details. More
+unfiltered prompt/output pairs (including repetitive arithmetic and expository examples) are in the local
+evaluation JSON, which is kept outside the GitHub repository along with the model export.
+
 ## Recovery and next step
 
 The F32 model weights and tokenizer survive, so CPU inference and a fresh weights-only fine-tuning experiment
