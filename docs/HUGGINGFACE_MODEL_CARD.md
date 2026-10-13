@@ -114,6 +114,11 @@ If you have a lawfully obtained local copy of all four files, clone the code and
 ```bash
 git clone https://github.com/sbartaula/Minillm-pretrain.git
 cd Minillm-pretrain
+python3 -m venv .venv
+source .venv/bin/activate
+python -m pip install --upgrade pip
+pip install torch --index-url https://download.pytorch.org/whl/cpu
+pip install tokenizers numpy safetensors
 pip install -e . --no-build-isolation
 tenslam generate --export-dir /path/to/downloaded/model-files \
   --prompt "Once upon a time, a young girl found a map"
