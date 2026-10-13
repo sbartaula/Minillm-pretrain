@@ -1,4 +1,4 @@
-# Building Tenslam MiniLM From Scratch: A Technical Journal (Sessions 1 to 3 + GPU Benchmark)
+# Building Tenslam MiniLM From Scratch: Technical Journal
 
 *Written for listening: it is mostly prose, with the numbers and reasons spelled out. Everything below is
 taken from the real code, configs, manifests and benchmark in this repository. Where something is an
@@ -464,52 +464,36 @@ We stopped and terminated the pod after saving `benchmark_cuda.json` locally. No
 
 ---
 
-## 10. Honest status: what is done and what is not
+## 10. What we completed
 
-**Done and verified:**
+The original Stage 1 plan became a real 29.9M-parameter pretraining run: 100M TinyStories tokens, validation loss
+1.631 and perplexity 5.11. The same project was then extended to a 60.1M-parameter model and a six-source data
+pipeline. Stage 2 prepared 946M training tokens and trained for the configured 5.5-hour limit, processing
+791.4M tokens before stopping normally at step 12,076 of 15,259 planned.
 
-- Data pipeline, tokenizer, model, training engine, checkpointing, 88 tests, CPU smoke test.
-- A real GPU benchmark with measured throughput, VRAM and cost estimates.
+The Stage 2 export and tokenizer were recovered, checksum-verified and tested with CPU generation. Generated
+stories were often readable, but the model repeats and hallucinates. It is a base text continuer, not a chatbot.
+The project test suite currently passes 92 tests with 1 skipped.
 
-**Not done:**
+**Important evaluation correction:** the archived Stage 2 aggregate validation number only covered the first
+TinyStories part of the concatenated validation file. Its per-source values are partial too. The archive lacks
+validation token files, so a full mixed-corpus loss cannot now be recomputed. The new evaluator stratifies
+validation by source for future runs. The complete evidence and caveat are in
+[`reports/stage2_recovery.md`](../reports/stage2_recovery.md).
 
-- **No real pretraining has happened.** The model has taken only a few dozen steps. We have no quality numbers yet.
-- Nothing is committed to git (there is no remote yet).
-- Cost estimates are estimates until a real run confirms them.
+## 11. What to do next
 
----
+1. Review the data terms and provenance before distributing Stage 2 weights. The Stage 2 Hugging Face card is
+   intentionally marked **HOLD** until the mixed-source rights are reviewed.
+2. The source code is now MIT-licensed; this does not license datasets or model weights.
+3. If weight publication is cleared, upload the custom Tenslam export (`model.safetensors`, `config.json`,
+   `tokenizer.json`, metadata) and link its model card to the GitHub source.
+4. For instruction-tuning practice, use a separate project and a larger pretrained base model with compatible
+   licences. This 60M model is too small and is not instruction-tuned.
 
-## 11. What comes next (Session 4 and beyond)
-
-**Decision 1: how many tokens to train on.**
-
-- Option A: about 100M tokens on the data we already have (126M, so 0.8 of an epoch). About 11 minutes of GPU time.
-- Option B: prepare more TinyStories (the full dataset is on the order of 450M tokens) and train 300M to
-  500M tokens. Better quality, still under 1 euro, but needs more data.
-
-Because the GPU is so cheap relative to budget, Option B is probably the best use of the project. A cleaner way to avoid
-the upload trouble: run `tenslam prepare` directly on the pod, since the pod has fast internet. That needs a short
-check that the prepare step runs there.
-
-**Decision 2: hyperparameters.** Peak learning rate 1e-3 with floor 1e-4 and warmup 150 is a reasonable start for a
-30M model. Micro-batch 32 with accumulation 4 (65k tokens per step) is sound. Larger batches (131k) are fine too.
-
-**Then the Session 4 plan:**
-
-1. Start a pod only after explicit approval; use persistent storage or download checkpoints regularly.
-2. Run `tenslam train` with a token budget and time cap; watch validation loss and the generated samples.
-3. Expect (to be confirmed, not promised) a validation loss somewhere in the 1s to 2s for TinyStories at this scale.
-4. Save the best checkpoint, export the inference-only weights (safetensors), download them, terminate the pod.
-
-**After training:**
-
-- Evaluate: final validation loss and perplexity, a training curve plot, sample generations at different
-  temperatures, and a comparison against a baseline (for example a small n-gram model).
-- Ablations (these make the portfolio stronger): RoPE vs learned positions, with vs without weight tying, different
-  learning rates. Each is cheap on this hardware.
-- Possible improvements: `torch.compile`, a larger model (the A5000 has plenty of spare memory), a tokenizer size
-  comparison, document-boundary attention masking, a model card and a polished README, and a small demo that loads the
-  exported model and generates stories.
+For a shorter, beginner-friendly explanation of the architecture and pipeline, see
+[`docs/TECHNICAL_OVERVIEW.md`](TECHNICAL_OVERVIEW.md). Dataset source terms and disclosure are in
+[`docs/HUGGINGFACE_MODEL_CARD.md`](HUGGINGFACE_MODEL_CARD.md).
 
 ---
 

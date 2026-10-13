@@ -1,33 +1,41 @@
 # Tenslam MiniLM
 
 A small language model built **entirely from scratch**: data pipeline, tokenizer, Transformer, training engine,
-checkpointing and cost estimator. About 30M parameters, trained on TinyStories. The goal is to understand every
-part of how an LLM is built, in code small enough to read in an afternoon, with the engineering habits of a
-real project (pinned data, hashes, tests, reproducible runs).
+checkpointing and cost estimator. The project includes a 29.9M-parameter TinyStories model and a 60.1M-parameter
+multi-source model. The goal is to understand every part of how an LLM is built, in code small enough to read in an
+afternoon, with the engineering habits of a real project (pinned data, hashes, tests, reproducible runs).
 
-> **Status:** the data pipeline, model and training engine are done and tested (91 tests pass, 1 skipped).
-> **Stage 1 is trained:** a 29.9M-parameter model on 100M TinyStories tokens (1,004 s on one GPU) reached
-> validation loss **1.631 (perplexity 5.11)**; curve and logs in [reports/stage1_30m_tinystories](reports/stage1_30m_tinystories).
-> Stage 2 (60M parameters, multi-source data) is prepared but not trained yet; see
-> [docs/RUNBOOK_STAGE2.md](docs/RUNBOOK_STAGE2.md). No pretrained weights are used anywhere.
+**Source repository:** [sbartaula/Minillm-pretrain](https://github.com/sbartaula/Minillm-pretrain)
+
+> **Status:** the data pipeline, model and training engine are implemented and tested.
+> **Stage 1:** a 29.9M-parameter model trained on 100M TinyStories tokens (1,004 s on one GPU), with validation
+> loss **1.631 (perplexity 5.11)**.
+> **Stage 2:** a 60.1M-parameter model trained on 791M tokens from six sources before its 5.5-hour time limit.
+> Its export loads and generates on CPU. The logged aggregate validation value was TinyStories-only because of
+> the original validation windowing. See [the recovery report](reports/stage2_recovery.md); do not cite that
+> aggregate as mixed-corpus validation.
+> No pretrained weights are used anywhere. This is a learning project, not an instruction-tuned assistant.
+> Stage 2 weight redistribution terms are under review; there is no public model upload link yet.
 
 ## What is in here
 
 | Part | What it does | Code |
 |---|---|---|
-| Data | stream TinyStories (pinned revision), clean, exact-dedup, remove train/validation overlap | [data.py](src/tenslam/data.py), [preprocess.py](src/tenslam/preprocess.py), [prepare.py](src/tenslam/prepare.py) |
-| Tokenizer | byte-level BPE, 8,192 tokens, trained on training split only | [tokenizer.py](src/tenslam/tokenizer.py) |
+| Data | pinned dataset revisions, document cleaning/deduplication, train-only tokenizer sample, manifests and hashes | [mix.py](src/tenslam/mix.py), [prepare.py](src/tenslam/prepare.py) |
+| Tokenizer | byte-level BPE trained on training text only; 8,192 tokens (Stage 1), 16,384 (Stage 2) | [tokenizer.py](src/tenslam/tokenizer.py) |
 | Model | decoder-only Transformer: RMSNorm, RoPE, causal attention, SwiGLU, tied embeddings | [model.py](src/tenslam/model.py) |
 | Training | AdamW, warmup + cosine, grad accumulation, clipping, bf16/fp16, NaN guard, eval, sampling | [train.py](src/tenslam/train.py), [schedule.py](src/tenslam/schedule.py) |
 | Recovery | atomic checkpoints with optimizer, scheduler, scaler and RNG state; exact resume | [checkpoint.py](src/tenslam/checkpoint.py) |
 | Export | inference-only `safetensors` weights, separate from training state | [export.py](src/tenslam/export.py) |
 | Benchmark | measured tokens/s, peak VRAM, time and cost estimates (never guessed) | [benchmark.py](src/tenslam/benchmark.py) |
 
-Model: 8 layers, d_model 512, 8 heads, SwiGLU d_ff 1408, 512-token context, **29,893,120 parameters**.
+Stage 2: 10 layers, width 640, 10 heads, SwiGLU width 1,728, 512-token context,
+**60,060,800 parameters**. The implementation is custom PyTorch, not directly loadable through
+Hugging Face `AutoModelForCausalLM`.
 
 ## Measured so far
 
-**Data (RunPod profile):** 573,932 training stories, **125,952,650 tokens**; 4,924 official validation stories,
+**Stage 1 data (RunPod profile):** 573,932 training stories, **125,952,650 tokens**; 4,924 official validation stories,
 992,483 tokens. Dropped: 109 invalid and 25,959 exact duplicates from 600,000 raw stories; 76 validation stories
 removed for overlapping training. Hashes in [data/tokens_runpod/prepare_manifest.json](data/tokens_runpod/prepare_manifest.json).
 
@@ -71,6 +79,20 @@ tenslam benchmark --config configs/train_runpod.toml --sweep 16,32,64 --price <E
 tenslam train     --config configs/train_runpod.toml --resume auto
 ```
 
+## Evaluate a recovered Stage 2 export
+
+The export uses Tenslam's custom model implementation. The verified local recovery is outside this source
+repository in `../recovered_stage2/`. Run the deterministic CPU prompt suite from the repository root:
+
+```bash
+python scripts/evaluate_export.py \
+  --export-dir ../recovered_stage2/runs/tenslam_60m_mix/export \
+  --output ../recovered_stage2/evaluation.json
+```
+
+The script checks the tokenizer hash, vocabulary size and model parameter count, then saves greedy and sampled
+continuations for story, factual, expository, arithmetic, question-answering and out-of-domain prompts.
+
 ## Design choices in one page
 
 - **TinyStories**, because very small models can learn coherent English from simple, narrow data, which keeps
@@ -89,6 +111,9 @@ tenslam train     --config configs/train_runpod.toml --resume auto
 ## Documentation
 
 - [docs/BUILD_JOURNAL.md](docs/BUILD_JOURNAL.md): the whole build explained, decision by decision, with alternatives.
+- [docs/TECHNICAL_OVERVIEW.md](docs/TECHNICAL_OVERVIEW.md): beginner-friendly architecture, pipeline and results.
+- [docs/HUGGINGFACE_MODEL_CARD.md](docs/HUGGINGFACE_MODEL_CARD.md): model-card draft and source/licensing disclosures.
+- [reports/stage2_recovery.md](reports/stage2_recovery.md): verified recovery, CPU outputs and validation caveat.
 - [docs/RUNBOOK_100M.md](docs/RUNBOOK_100M.md): exact steps for the 100M-token run and what to do afterwards.
 - [docs/SCALING.md](docs/SCALING.md): what changes to build 1B or larger models (compute, memory, data, code).
 - [docs/MODEL_CARD.md](docs/MODEL_CARD.md): model card template, to be filled with real results.
@@ -105,10 +130,14 @@ See [docs/SCALING.md](docs/SCALING.md) for the numbers and a step-by-step ladder
 
 ## Limitations
 
-- Trained on synthetic children's stories: not a general-purpose assistant, no safety tuning.
+- Stage 1 was trained on synthetic children's stories; Stage 2 uses a small, mixed-source corpus. Neither is a
+  general-purpose assistant or safety-tuned.
+- Stage 2 generations can repeat and hallucinate facts; it is a base text-continuation model, not a chatbot.
+- Stage 2 uses sources with different and sometimes item-specific terms, including Wikipedia and Project
+  Gutenberg. Review rights before redistributing weights; this model is not cleared for public upload.
 - No pretrained weights were used; no benchmark comparisons yet.
 - The TinyStories dataset has its own licence (CDLA-Sharing-1.0). Re-check it before publishing derived data or weights.
-- A code licence has not been chosen yet.
+- Source code is MIT-licensed; that licence does not cover training data or model weights.
 
 ## Layout
 

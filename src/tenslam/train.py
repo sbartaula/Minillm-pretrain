@@ -191,12 +191,14 @@ class Trainer:
         self.train_tokens = open_tokens(cfg.train_bin)
         self.val_tokens = open_tokens(cfg.val_bin)
         self.source_val: dict[str, np.ndarray] = {}
+        self.source_val_token_counts: dict[str, int] = {}
         if Path(cfg.manifest).exists():
             with open(cfg.manifest, encoding="utf-8") as f:
                 for src in json.load(f).get("sources", []):
                     vb = Path(src.get("validation_bin", ""))
                     if src.get("validation_tokens", 0) > cfg.seq_len + 1 and vb.exists():
                         self.source_val[src["name"]] = open_tokens(vb)
+                        self.source_val_token_counts[src["name"]] = int(src["validation_tokens"])
 
         torch.manual_seed(cfg.seed)
         np.random.seed(cfg.seed)
@@ -280,37 +282,50 @@ class Trainer:
     # ----------------------------------------------------------------- evaluation / samples
     @torch.no_grad()
     def evaluate(self, max_batches: int | None = None) -> dict[str, float]:
-        """Mean next-token cross-entropy over fixed, non-overlapping validation windows."""
+        """Evaluate deterministic validation windows, stratifying mixed data by source."""
         mb = self.cfg.eval_batches if max_batches is None else max_batches
         was_training = self.model.training
         self.model.eval()
-        total, count = 0.0, 0
-        for x, y in eval_batches(self.val_tokens, self.cfg.micro_batch_size, self.cfg.seq_len, mb):
-            x, y = x.to(self.device), y.to(self.device)
-            with self._autocast():
-                _, loss = self._fwd(x, y)
-            total += loss.item() * y.numel()
-            count += y.numel()
-        if was_training:
-            self.model.train()
-        if count == 0:
-            raise ValueError("validation file too short for one window")
-        mean = total / count
-        out = {"val_loss": mean, "val_ppl": safe_exp(mean), "val_tokens": count}
-        if self.source_val:  # per-source validation loss (Stage 2 mixes)
-            self.model.eval()
-            for name, toks in self.source_val.items():
-                tot, cnt = 0.0, 0
-                for x, y in eval_batches(toks, self.cfg.micro_batch_size, self.cfg.seq_len, max(1, mb // 5)):
+        weighted_loss, source_weight, count = 0.0, 0, 0
+        out: dict[str, float] = {}
+        try:
+            if self.source_val:
+                source_batches = 0 if mb == 0 else max(1, mb // len(self.source_val))
+                for name, toks in self.source_val.items():
+                    total, source_count = 0.0, 0
+                    for x, y in eval_batches(
+                        toks, self.cfg.micro_batch_size, self.cfg.seq_len, source_batches
+                    ):
+                        x, y = x.to(self.device), y.to(self.device)
+                        with self._autocast():
+                            _, loss = self._fwd(x, y)
+                        total += loss.item() * y.numel()
+                        source_count += y.numel()
+                    if source_count:
+                        source_loss = total / source_count
+                        out[f"val_loss/{name}"] = source_loss
+                        weight = self.source_val_token_counts.get(name, len(toks))
+                        weighted_loss += source_loss * weight
+                        source_weight += weight
+                        count += source_count
+            else:
+                total = 0.0
+                for x, y in eval_batches(
+                    self.val_tokens, self.cfg.micro_batch_size, self.cfg.seq_len, mb
+                ):
                     x, y = x.to(self.device), y.to(self.device)
-                    with torch.no_grad(), self._autocast():
+                    with self._autocast():
                         _, loss = self._fwd(x, y)
-                    tot += loss.item() * y.numel()
-                    cnt += y.numel()
-                if cnt:
-                    out[f"val_loss/{name}"] = tot / cnt
+                    total += loss.item() * y.numel()
+                    count += y.numel()
+                weighted_loss, source_weight = total, count
+        finally:
             if was_training:
                 self.model.train()
+        if source_weight == 0 or count == 0:
+            raise ValueError("validation data too short for one window")
+        mean = weighted_loss / source_weight
+        out.update({"val_loss": mean, "val_ppl": safe_exp(mean), "val_tokens": count})
         return out
 
     def sample_texts(self) -> list[dict[str, str]]:

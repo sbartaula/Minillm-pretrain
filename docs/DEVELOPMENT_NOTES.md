@@ -1,5 +1,9 @@
 # Tenslam MiniLM
 
+> **Historical development snapshot.** This document records the earlier Stage 1 design and is retained as
+> background, not current project status. Stage 1 and Stage 2 have since been trained; see
+> [the technical overview](TECHNICAL_OVERVIEW.md) and [Stage 2 recovery report](../reports/stage2_recovery.md).
+
 A from-scratch, decoder-only Transformer language model (~30M parameters: 8 layers,
 d_model 512, 8 heads, 512-token context, 8,192-token byte-level BPE vocabulary),
 pretrained from random weights on TinyStories. Educational, portfolio-quality project.

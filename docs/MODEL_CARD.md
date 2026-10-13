@@ -1,7 +1,8 @@
-# Model Card: Tenslam MiniLM 30M (TEMPLATE, fill in after training)
+# Historical Model Card Template: Tenslam MiniLM 30M
 
-> **Status: not trained yet.** Every `TBD` below must be replaced by a real measurement before publishing.
-> Do not publish this card with placeholder values.
+> This is the original Stage 1 template and is now historical. It still contains `TBD` values and is not ready
+> to publish. For the trained Stage 2 model, use [HUGGINGFACE_MODEL_CARD.md](HUGGINGFACE_MODEL_CARD.md),
+> which is also marked HOLD pending dataset/source-text rights review.
 
 ## Model details
 

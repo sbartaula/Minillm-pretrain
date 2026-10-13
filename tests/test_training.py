@@ -7,6 +7,7 @@ import torch
 
 from tenslam import tokenizer as T
 from tenslam.checkpoint import atomic_save, get_rng_state, load_checkpoint, set_rng_state
+from tenslam.data import sha256_file
 from tenslam.dataset import eval_batches, open_tokens, sample_batch
 from tenslam.export import export_inference, load_exported
 from tenslam.prepare import filter_special_text, loose_key
@@ -177,6 +178,33 @@ def test_evaluate_is_gradient_free_and_does_not_change_weights(corpus, tmp_path)
     assert all(torch.equal(g, p.grad) for g, p in zip(grads, tr.model.parameters()))
     assert math.isfinite(r["val_loss"]) and r["val_ppl"] == pytest.approx(math.exp(r["val_loss"]))
     assert tr.evaluate()["val_loss"] == r["val_loss"]  # deterministic
+
+
+def test_mixed_validation_aggregates_source_losses_by_source_token_count(corpus, tmp_path):
+    source_values = {"short_source": (1, 100), "long_source": (3, 300)}
+    sources = []
+    for name, (token_id, token_count) in source_values.items():
+        path = tmp_path / f"{name}.bin"
+        np.full(token_count, token_id, dtype=np.uint16).tofile(path)
+        sources.append({"name": name, "validation_bin": str(path), "validation_tokens": token_count})
+    manifest = tmp_path / "manifest.json"
+    manifest.write_text(json.dumps({
+        "tokenizer": {"sha256": sha256_file(corpus["tok_path"])},
+        "train": {"sha256": "", "n_tokens": 0},
+        "validation": {"sha256": "", "n_tokens": sum(v[1] for v in source_values.values())},
+        "sources": sources,
+    }))
+    tr = Trainer(make_cfg(corpus, tmp_path, manifest=str(manifest), eval_batches=2,
+                          verify_data_hash=False), write_files=False)
+    tr._fwd = lambda x, y: (None, y.float().mean())
+
+    result = tr.evaluate()
+
+    assert result["val_loss/short_source"] == pytest.approx(1.0)
+    assert result["val_loss/long_source"] == pytest.approx(3.0)
+    assert result["val_loss"] == pytest.approx((1.0 * 100 + 3.0 * 300) / 400)
+    assert result["val_tokens"] == 2 * 4 * 16
+    assert result["val_ppl"] == pytest.approx(math.exp(result["val_loss"]))
 
 
 def test_run_logs_metrics_and_writes_checkpoint_and_export(corpus, tmp_path):
